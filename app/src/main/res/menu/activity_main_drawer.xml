@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_HomeFragment"
+            android:icon="@drawable/ic_home"
+            android:title="@string/menu_home" />
+        <item
+            android:id="@+id/blogFragment"
+            android:icon="@drawable/ic_category"
+            android:title="@string/blog" />
+        <item
+            android:id="@+id/personalInfoFragment"
+            android:icon="@drawable/ic_person"
+            android:title="@string/personal_info" />
+    </group>
+    <group android:id="@+id/lang">
+        <item
+            android:id="@+id/nav_change_langue"
+            android:icon="@drawable/ic_language"
+            android:title=""
+            app:actionProviderClass="android.widget.ShareActionProvider"
+            app:actionViewClass="androidx.appcompat.widget.AppCompatImageView"/>
+        <item
+            android:id="@+id/exit"
+            android:icon="@drawable/ic_exit"
+            android:title="@string/exit" />
+    </group>
+</menu>
