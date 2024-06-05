@@ -53,6 +53,8 @@ class MainActivity : TrackingBaseActivity<ActivityMainBinding>(), HomeViewModel.
 
     private lateinit var sharedActionViewModel: TestViewModel
 
+    private var isNavigateUp = false
+
     @Inject
     lateinit var localHelper: LocalHelper
 
@@ -216,7 +218,8 @@ class MainActivity : TrackingBaseActivity<ActivityMainBinding>(), HomeViewModel.
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                if (!toolbar.menu.findItem(R.id.menu_notification).isVisible) {
+                if (isNavigateUp) {
+                    isNavigateUp = false
                     navController.navigateUp()
                     return true
                 }
@@ -231,6 +234,7 @@ class MainActivity : TrackingBaseActivity<ActivityMainBinding>(), HomeViewModel.
 
             R.id.menu_notification -> {
                 navigateTo(R.id.notificationsFragment)
+                isNavigateUp = true
                 return true
             }
 

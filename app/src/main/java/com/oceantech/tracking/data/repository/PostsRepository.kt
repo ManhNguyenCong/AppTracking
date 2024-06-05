@@ -2,6 +2,8 @@ package com.oceantech.tracking.data.repository
 
 import com.oceantech.tracking.data.model.CommentsDtoReq
 import com.oceantech.tracking.data.model.CommentsDtoRes
+import com.oceantech.tracking.data.model.LikesDtoReq
+import com.oceantech.tracking.data.model.LikesDtoRes
 import com.oceantech.tracking.data.model.Page
 import com.oceantech.tracking.data.model.PostsDto
 import com.oceantech.tracking.data.model.SearchDto
@@ -17,4 +19,7 @@ class PostsRepository(
 
     fun commentPosts(postId: Int, comment: CommentsDtoReq): Observable<CommentsDtoRes> =
         api.commentPosts(postId, comment).subscribeOn(Schedulers.io())
+
+    fun likePosts(postId: Int, like: LikesDtoReq): Observable<LikesDtoRes> =
+        api.likePosts(postId, like).subscribeOn(Schedulers.io())
 }

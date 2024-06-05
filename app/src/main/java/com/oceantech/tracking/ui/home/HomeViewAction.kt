@@ -2,6 +2,7 @@ package com.oceantech.tracking.ui.home
 
 import com.oceantech.tracking.core.NimpeViewModelAction
 import com.oceantech.tracking.data.model.CommentsDtoReq
+import com.oceantech.tracking.data.model.LikesDtoReq
 import com.oceantech.tracking.data.model.SearchDto
 import com.oceantech.tracking.data.model.TrackingDtoReq
 import com.oceantech.tracking.data.model.UserDtoReq
@@ -23,5 +24,6 @@ sealed class HomeViewAction : NimpeViewModelAction {
     data class UpdateMyself(val user: UserDtoReq): HomeViewAction()
 
     data class GetNewPosts(val search: SearchDto): HomeViewAction()
-    data class PostComment(val postId: Int, val comment: CommentsDtoReq): HomeViewAction()
+    data class CommentPosts(val postId: Int, val comment: CommentsDtoReq): HomeViewAction()
+    data class LikePosts(val postId: Int, val like: LikesDtoReq): HomeViewAction()
 }

@@ -19,6 +19,10 @@ class UserRepository @Inject constructor(
     fun getCurrentUser(): Observable<UserDto> = api.getCurrentUser().subscribeOn(Schedulers.io())
     fun getString(): String = "test part"
 
+    suspend fun saveUserInfo(user: UserDto) {
+        preferences.saveUserData(user)
+    }
+
     suspend fun clearUserPreferences() {
         preferences.clear()
     }

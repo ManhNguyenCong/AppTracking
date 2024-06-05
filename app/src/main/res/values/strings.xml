@@ -94,4 +94,15 @@
     <string name="place_of_birth">Place of birth</string>
     <string name="account_information">Account Information</string>
     <string name="save">Save</string>
+    <string name="count_comment">%d comment</string>
+    <string name="count_comments">%d comments</string>
+    <string name="show_more">Show more</string>
+    <string name="show_less">Show less</string>
+    <string name="count_like">%d like</string>
+    <string name="count_likes">%d likes</string>
+    <string name="noComments">Don\'t have any comments now...</string>
+    <string name="enter_your_comment">Enter your comment...</string>
+    <string name="comment">Comment</string>
+    <string name="like">Like</string>
+    <string name="liked">Liked</string>
 </resources>

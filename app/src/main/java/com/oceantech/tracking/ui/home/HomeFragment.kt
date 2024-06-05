@@ -173,12 +173,8 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
     }
 
     override fun invalidate(): Unit = withState(viewModel) {
-
         when (it.asyncLogout) {
             is Success -> {
-                val sessionManager = context?.let { it1 -> SessionManager(it1.applicationContext) }
-                sessionManager?.clearToken()
-                viewModel.clearUserPreferences()
                 startActivity(Intent(requireContext(), LoginActivity::class.java))
                 activity?.finish()
             }

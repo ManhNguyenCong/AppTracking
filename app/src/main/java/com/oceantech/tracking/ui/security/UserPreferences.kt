@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.oceantech.tracking.data.model.UserDto
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -25,9 +26,9 @@ class UserPreferences @Inject constructor(context: Context) {
             preferences[REFRESH_TOKEN]
         }
 
-    val userId: Flow<Long?>
+    val userId: Flow<Int?>
         get() = mContext.dataStore.data.map { preferences ->
-            preferences[USER_ID]
+            preferences[USER_ID]?.toInt()
         }
 
     val username: Flow<String?>
@@ -56,15 +57,15 @@ class UserPreferences @Inject constructor(context: Context) {
         }
     }
 
-//    suspend fun saveUserData(user: User) {
-//        mContext.dataStore.edit { preferences ->
-//            preferences[USER_ID] = user.id ?: 0
+    suspend fun saveUserData(user: UserDto) {
+        mContext.dataStore.edit { preferences ->
+            preferences[USER_ID] = (user.id ?: 0) * 1L
 //            preferences[USER_ROLE] = user.roles[0].name ?: ""
 //            preferences[USERNAME] = user.username ?: ""
 //            preferences[USER_FULLNAME] = user.fullname ?: "[Unknown]"
 //            preferences[USER_EMAIL] = user.email ?: "email@gmail.com"
-//        }
-//    }
+        }
+    }
 
     suspend fun clear() {
         mContext.dataStore.edit { preferences ->

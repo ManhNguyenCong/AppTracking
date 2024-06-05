@@ -96,6 +96,7 @@
                 android:id="@+id/media"
                 android:layout_width="match_parent"
                 android:layout_height="360dp"
+                android:importantForAccessibility="no"
                 android:padding="1dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -151,7 +152,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
-            android:text="Like"
+            android:text="@string/like"
             android:textAllCaps="false"
             app:layout_constraintEnd_toStartOf="@id/btnComment"
             app:layout_constraintStart_toStartOf="parent"
@@ -164,7 +165,7 @@
             android:layout_marginStart="2dp"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="4dp"
-            android:text="Comment"
+            android:text="@string/comment"
             android:textAllCaps="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/btnLike"
@@ -177,10 +178,10 @@
             android:layout_marginHorizontal="8dp"
             android:layout_marginTop="8dp"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnComment"
-            android:visibility="gone">
+            app:layout_constraintTop_toBottomOf="@id/btnComment">
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/NimpeInputLayoutLogin"
@@ -192,7 +193,7 @@
                     android:id="@+id/comment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Enter your comment..." />
+                    android:hint="@string/enter_your_comment" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
@@ -201,7 +202,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="8dp"
-                android:text="Send"
+                android:text="@string/send"
                 android:textAllCaps="false" />
 
         </LinearLayout>
@@ -213,8 +214,7 @@
             android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/postCommentLayout"
-            android:visibility="gone">
+            app:layout_constraintTop_toBottomOf="@id/postCommentLayout">
 
             <View
                 android:layout_width="0dp"
@@ -230,10 +230,23 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="Show more"
+                android:paddingVertical="8dp"
+                android:text="@string/show_more"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvNoComments"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/noComments"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/showMore"
+                android:visibility="gone"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvComments"

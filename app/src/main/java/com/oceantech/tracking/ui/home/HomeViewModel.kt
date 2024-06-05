@@ -10,6 +10,7 @@ import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.oceantech.tracking.core.TrackingViewModel
 import com.oceantech.tracking.data.model.CommentsDtoReq
+import com.oceantech.tracking.data.model.LikesDtoReq
 import com.oceantech.tracking.data.model.SearchDto
 import com.oceantech.tracking.data.model.TrackingDtoReq
 import com.oceantech.tracking.data.model.UserDtoReq
@@ -52,21 +53,29 @@ class HomeViewModel @AssistedInject constructor(
             is HomeViewAction.UpdateMyself -> handleUpdateMySelf(action.user)
 
             is HomeViewAction.GetNewPosts -> handleGetNewPosts(action.search)
-            is HomeViewAction.PostComment -> handlePostComment(action.postId, action.comment)
+            is HomeViewAction.CommentPosts -> handleCommentPosts(action.postId, action.comment)
+            is HomeViewAction.LikePosts -> handleLikePosts(action.postId, action.like)
         }
     }
 
-    private fun handlePostComment(postId: Int, commentReq: CommentsDtoReq) {
+    private fun handleLikePosts(postId: Int, like: LikesDtoReq) {
+        setState { copy(asyncNewPosts = Uninitialized, asyncLikePosts = Loading()) }
+        postsRepo.likePosts(postId, like).execute {
+            copy(asyncLikePosts = it)
+        }
+    }
+
+    private fun handleCommentPosts(postId: Int, commentReq: CommentsDtoReq) {
         setState { copy(asyncNewPosts = Uninitialized, asyncCommentPosts = Loading()) }
         postsRepo.commentPosts(postId, commentReq).execute {
-            copy(asyncNewPosts = Uninitialized, asyncCommentPosts = it)
+            copy(asyncCommentPosts = it)
         }
     }
 
     private fun handleGetNewPosts(search: SearchDto) {
-        setState { copy(asyncNewPosts = Loading(), asyncCommentPosts = Uninitialized) }
+        setState { copy(asyncNewPosts = Loading(), asyncCommentPosts = Uninitialized, asyncLikePosts = Uninitialized) }
         postsRepo.getNewPosts(search).execute {
-            copy(asyncNewPosts = it, asyncCommentPosts = Uninitialized)
+            copy(asyncNewPosts = it)
         }
     }
 

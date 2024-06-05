@@ -91,4 +91,19 @@
     <string name="show_password">Hiển thị mật khẩu</string>
     <string name="no_notification">Hiện không có thông báo nào...</string>
     <string name="notifications">Thông báo</string>
+    <string name="personal_information">Thông tin cá nhân</string>
+    <string name="place_of_birth">Nơi sinh</string>
+    <string name="account_information">Thông tin tài khoản</string>
+    <string name="save">Lưu</string>
+    <string name="count_comment">%d bình luận</string>
+    <string name="count_comments">%d bình luận</string>
+    <string name="show_more">Hiển thị thêm</string>
+    <string name="show_less">Ẩn bớt</string>
+    <string name="count_like">%d lượt thích</string>
+    <string name="count_likes">%d lượt thích</string>
+    <string name="noComments">Hiện chưa có bình luận nào...</string>
+    <string name="enter_your_comment">Nhập bình luận của bạn...</string>
+    <string name="comment">Bình luận</string>
+    <string name="like">Thích</string>
+    <string name="liked">Đã thích</string>
 </resources>

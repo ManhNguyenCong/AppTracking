@@ -8,7 +8,6 @@ import android.util.DisplayMetrics
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.viewModel
-import com.oceantech.tracking.R
 import com.oceantech.tracking.TrackingApplication
 import com.oceantech.tracking.core.TrackingBaseActivity
 import com.oceantech.tracking.data.network.SessionManager
@@ -51,8 +50,11 @@ class SplashActivity : TrackingBaseActivity<ActivitySplashBinding>(), SecurityVi
     private fun handleStateChange(it: SecurityViewState) {
         when (it.userCurrent) {
             is Success -> {
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
+                it.userCurrent.invoke()?.let { user ->
+                    viewModel.saveUserInfo(user)
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                }
             }
 
             is Fail -> {

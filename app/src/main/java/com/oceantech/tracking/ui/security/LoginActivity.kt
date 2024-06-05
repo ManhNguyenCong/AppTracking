@@ -35,6 +35,7 @@ class LoginActivity : TrackingBaseActivity<ActivityLoginBinding>(), SecurityView
 
         val session = SessionManager(this)
         session.clearToken()
+        viewModel.clearUserPreferences()
     }
 
     private fun handleEvent(event: SecurityViewEvent) {

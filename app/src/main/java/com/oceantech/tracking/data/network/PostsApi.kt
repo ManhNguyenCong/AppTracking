@@ -3,6 +3,8 @@ package com.oceantech.tracking.data.network
 import com.oceantech.tracking.data.model.CommentsDto
 import com.oceantech.tracking.data.model.CommentsDtoReq
 import com.oceantech.tracking.data.model.CommentsDtoRes
+import com.oceantech.tracking.data.model.LikesDtoReq
+import com.oceantech.tracking.data.model.LikesDtoRes
 import com.oceantech.tracking.data.model.Page
 import com.oceantech.tracking.data.model.PostsDto
 import com.oceantech.tracking.data.model.SearchDto
@@ -18,4 +20,7 @@ interface PostsApi {
 
     @POST("posts/comments/{id}")
     fun commentPosts(@Path("id") postId: Int, @Body comment: CommentsDtoReq): Observable<CommentsDtoRes>
+
+    @POST("posts/likes/{id}")
+    fun likePosts(@Path("id") postId: Int, @Body like: LikesDtoReq): Observable<LikesDtoRes>
 }

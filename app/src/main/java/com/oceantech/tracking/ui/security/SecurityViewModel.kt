@@ -8,6 +8,7 @@ import com.airbnb.mvrx.MvRxViewModelFactory
 import com.airbnb.mvrx.ViewModelContext
 import com.oceantech.tracking.core.TrackingViewModel
 import com.oceantech.tracking.data.model.TokenResponse
+import com.oceantech.tracking.data.model.UserDto
 import com.oceantech.tracking.data.model.UserDtoReq
 import com.oceantech.tracking.data.repository.AuthRepository
 import com.oceantech.tracking.data.repository.UserRepository
@@ -15,6 +16,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.util.Date
 
 
@@ -72,6 +74,18 @@ class SecurityViewModel @AssistedInject constructor(
     }
 
     fun getString() = "test"
+
+    fun saveUserInfo(user: UserDto) {
+        viewModelScope.launch {
+            userRepo.saveUserInfo(user)
+        }
+    }
+
+    fun clearUserPreferences() {
+        viewModelScope.launch {
+            userRepo.clearUserPreferences()
+        }
+    }
 
     @AssistedFactory
     interface Factory {

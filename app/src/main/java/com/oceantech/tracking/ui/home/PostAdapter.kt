@@ -1,5 +1,6 @@
 package com.oceantech.tracking.ui.home
 
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +12,9 @@ import com.oceantech.tracking.R
 import com.oceantech.tracking.data.model.CommentsDto
 import com.oceantech.tracking.data.model.CommentsDtoReq
 import com.oceantech.tracking.data.model.LikesDto
+import com.oceantech.tracking.data.model.LikesDtoReq
 import com.oceantech.tracking.data.model.PostsDto
+import com.oceantech.tracking.data.model.UserDto
 import com.oceantech.tracking.data.model.toReq
 import com.oceantech.tracking.databinding.ItemBlogsBinding
 import com.oceantech.tracking.utils.format
@@ -19,31 +22,35 @@ import java.time.Instant
 import java.util.Date
 
 class PostAdapter(
-    private val onBtnLikeClick: () -> Unit,
+    private val context: Context,
+    private val checkLiked: (List<UserDto>) -> Boolean,
+    private val onBtnLikeClick: (Int, LikesDtoReq) -> Unit,
+    private val showLikes: (List<LikesDto>) -> Unit,
     private val postComment: (Int, CommentsDtoReq) -> Unit,
-    private val showLikes: () -> Unit,
     private val onMediaClick: () -> Unit
 ) : ListAdapter<PostsDto, PostAdapter.PostViewModel>(DiffCallback) {
     class PostViewModel(private val binding: ItemBlogsBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(
+            context: Context,
             post: PostsDto,
-            onBtnLikeClick: () -> Unit,
+            checkLiked: (List<UserDto>) -> Boolean,
+            onBtnLikeClick: (Int, LikesDtoReq) -> Unit,
+            showLiked: (List<LikesDto>) -> Unit,
             postComment: (Int, CommentsDtoReq) -> Unit,
-            showLiked: () -> Unit,
             onMediaClick: () -> Unit
         ) {
             post.user.let {
-                binding.displayName.text = it?.displayName ?: "Unknown"
-                if(it?.hasPhoto == true) {
+                binding.displayName.text = it?.displayName ?: context.getString(R.string.unknown)
+                if (it?.hasPhoto == true) {
                     // TODO load image
                 } else {
                     binding.image.setImageResource(R.drawable.ic_person)
                 }
             }
 
-            binding.dateTime.text = post.date?.format() ?: "Unknown"
-            binding.content.text = post.content ?: "Unknown"
+            binding.dateTime.text = post.date?.format() ?: context.getString(R.string.unknown)
+            binding.content.text = post.content ?: context.getString(R.string.unknown)
             if (!post.media.isNullOrEmpty()) {
                 // Todo set media
                 binding.mediaLayout.visibility = View.VISIBLE
@@ -52,12 +59,28 @@ class PostAdapter(
                 binding.mediaLayout.visibility = View.GONE
             }
 
-            bindLikes(post.likes, showLiked)
-            bindComments(post.comments)
+            binding.btnLike.text =
+                if (post.likes?.mapNotNull { it.user }?.let { checkLiked(it) } == true) {
+                    context.getString(R.string.liked)
+                } else {
+                    binding.btnLike.setOnClickListener {
+                        onBtnLikeClick(
+                            post.id!!,
+                            LikesDtoReq(
+                                0,
+                                Date.from(Instant.now()),
+                                0,
+                                null,
+                                post.toReq()
+                            )
+                        )
+                    }
+                    context.getString(R.string.like)
+                }
+            bindLikes(context, post.likes, showLiked)
 
-            binding.btnLike.setOnClickListener {
-                onBtnLikeClick()
-            }
+            bindComments(context, post.comments)
+
             binding.btnComment.setOnClickListener {
                 binding.postCommentLayout.visibility = View.VISIBLE
             }
@@ -69,46 +92,42 @@ class PostAdapter(
                 if (comment.isNullOrEmpty()) {
                     binding.comment.error = ""
                 } else {
-
-//                    postComment(
-//                        post.id!!,
-//                        CommentsDtoReq(
-//                            0,
-//                            content = comment,
-//                            date = Date.from(Instant.now()),
-//                            post = post.toReq(),
-//                            user = null
-//                        )
-//                    )
-                    binding.postCommentLayout.visibility = View.VISIBLE
+                    postComment(
+                        post.id!!, CommentsDtoReq(
+                            0,
+                            content = comment,
+                            date = Date.from(Instant.now()),
+                            post = post.toReq(),
+                            user = null
+                        )
+                    )
                     binding.postCommentLayout.visibility = View.GONE
                 }
             }
         }
 
-        private fun bindComments(comments: List<CommentsDto>?) {
-            Log.d("Test", "bindComments: " + comments?.size)
+        private fun bindComments(context: Context, comments: List<CommentsDto>?) {
+            binding.showMore.visibility = View.GONE
             binding.commentNum.text = if (comments.isNullOrEmpty()) {
-                "0 comment"
+                String.format(context.getString(R.string.count_comment), 0)
             } else if (comments.size == 1) {
-                "1 comment"
+                String.format(context.getString(R.string.count_comment), 1)
             } else {
-                "${comments.size} comments"
-            }
-
-            if (comments.isNullOrEmpty()) {
-                // TODO handle no comment
-                return
-            }
-
-            binding.commentNum.setOnClickListener {
-                binding.commentsLayout.visibility = View.VISIBLE
+                String.format(context.getString(R.string.count_comments), comments.size)
             }
 
             val adapter = CommentAdapter()
             binding.rvComments.adapter = adapter
 
-            if (comments.size <= 3) {
+            if (comments.isNullOrEmpty()) {
+                adapter.submitList(null)
+                binding.tvNoComments.visibility = View.VISIBLE
+                return
+            }
+
+            binding.tvNoComments.visibility = View.GONE
+
+            if (comments.size <= 2) {
                 adapter.submitList(comments)
                 binding.showMore.visibility = View.GONE
                 return
@@ -119,29 +138,29 @@ class PostAdapter(
             binding.showMore.visibility = View.VISIBLE
             binding.showMore.setOnClickListener {
                 if (isFull) {
-                    binding.showMore.text = "Show more"
+                    binding.showMore.text = context.getString(R.string.show_more)
                     adapter.submitList(comments.subList(0, 2))
                 } else {
-                    binding.showMore.text = "Show less"
+                    binding.showMore.text = context.getString(R.string.show_less)
                     adapter.submitList(comments)
                 }
                 isFull = !isFull
             }
         }
 
-        private fun bindLikes(likes: List<LikesDto>?, showLiked: () -> Unit) {
+        private fun bindLikes(context: Context, likes: List<LikesDto>?, showLiked: (List<LikesDto>) -> Unit) {
             if (likes.isNullOrEmpty()) {
-                binding.likeNum.text = "0 like"
+                binding.likeNum.text = String.format(context.getString(R.string.count_like), 0)
                 return
             }
 
             binding.likeNum.text = if (likes.size == 1) {
-                "1 like"
+                String.format(context.getString(R.string.count_like), 1)
             } else {
-                "${likes.size} likes"
+                String.format(context.getString(R.string.count_likes), likes.size)
             }
-
-            binding.likeNum.setOnClickListener { showLiked() }
+            Log.d("Test", "bindLikes: " + likes.joinToString("\n") { it.user.toString() })
+            binding.likeNum.setOnClickListener { showLiked(likes) }
         }
     }
 
@@ -164,8 +183,15 @@ class PostAdapter(
     }
 
     override fun onBindViewHolder(holder: PostViewModel, position: Int) {
+        val current = getItem(position)
         holder.bind(
-            getItem(position), onBtnLikeClick, postComment, showLikes, onMediaClick
+            context,
+            current,
+            checkLiked,
+            onBtnLikeClick,
+            showLikes,
+            postComment,
+            onMediaClick
         )
     }
 }
