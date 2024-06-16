@@ -1,6 +1,5 @@
-package com.oceantech.tracking.ui.home
+package com.oceantech.tracking.ui.home.adapter
 
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -9,10 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.oceantech.tracking.data.model.NotificationDto
 import com.oceantech.tracking.databinding.ItemNotificationsBinding
 import com.oceantech.tracking.utils.format
-import com.oceantech.tracking.utils.toLocalDateTime
 
 class NotificationAdapter: ListAdapter<NotificationDto, NotificationAdapter.NotificationViewHolder>(
-    DiffCallback) {
+    DiffCallback
+) {
     class NotificationViewHolder(private val binding: ItemNotificationsBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(notification: NotificationDto) {

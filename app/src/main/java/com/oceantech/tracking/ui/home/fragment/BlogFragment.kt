@@ -1,4 +1,4 @@
-package com.oceantech.tracking.ui.home
+package com.oceantech.tracking.ui.home.fragment
 
 import android.os.Bundle
 import android.util.Log
@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.navigateUp
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.activityViewModel
@@ -18,6 +17,9 @@ import com.oceantech.tracking.data.model.SearchDto
 import com.oceantech.tracking.data.model.UserDto
 import com.oceantech.tracking.data.model.toReq
 import com.oceantech.tracking.databinding.FragmentBlogBinding
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewAction
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewModel
+import com.oceantech.tracking.ui.home.adapter.PostAdapter
 import javax.inject.Inject
 
 class BlogFragment @Inject constructor() : TrackingBaseFragment<FragmentBlogBinding>() {
@@ -36,7 +38,8 @@ class BlogFragment @Inject constructor() : TrackingBaseFragment<FragmentBlogBind
         super.onViewCreated(view, savedInstanceState)
 
         views.btnNewPost.setOnClickListener {
-            // TODO handle event click button new post
+            val action = BlogFragmentDirections.actionBlogFragmentToNewPostFragment()
+            findNavController().navigate(action)
         }
 
         // TOdo handle event click in item list

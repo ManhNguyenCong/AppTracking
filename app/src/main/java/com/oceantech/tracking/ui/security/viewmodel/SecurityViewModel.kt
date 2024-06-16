@@ -1,4 +1,4 @@
-package com.oceantech.tracking.ui.security
+package com.oceantech.tracking.ui.security.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.airbnb.mvrx.ActivityViewModelContext
@@ -17,7 +17,6 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import java.util.Date
 
 
 class SecurityViewModel @AssistedInject constructor(

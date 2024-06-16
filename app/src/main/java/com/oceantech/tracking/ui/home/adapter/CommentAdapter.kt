@@ -1,4 +1,4 @@
-package com.oceantech.tracking.ui.home
+package com.oceantech.tracking.ui.home.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

@@ -41,25 +41,25 @@ data class Page<T>(
     @SerializedName("content")
     val content: List<T>,
     @SerializedName("empty")
-    val empty: Boolean?,
+    val empty: Boolean,
     @SerializedName("first")
-    val first: Boolean?,
+    val first: Boolean,
     @SerializedName("last")
-    val last: Boolean?,
+    val last: Boolean,
     @SerializedName("number")
-    val number: Int?,
+    val number: Int,
     @SerializedName("numberOfElements")
-    val numberOfElements: Int?,
+    val numberOfElements: Int,
     @SerializedName("pageable")
     val pageable: Pageable?,
     @SerializedName("size")
-    val size: Int?,
+    val size: Int,
     @SerializedName("sort")
     val sort: Sort?,
     @SerializedName("totalElements")
-    val totalElements: Int?,
+    val totalElements: Int,
     @SerializedName("totalPages")
-    val totalPages: Int?
+    val totalPages: Int
 )
 
 data class Pageable(

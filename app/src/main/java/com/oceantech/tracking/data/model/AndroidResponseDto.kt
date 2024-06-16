@@ -2,7 +2,7 @@ package com.oceantech.tracking.data.model
 
 import com.google.gson.annotations.SerializedName
 
-data class AndroidResponseDto<PostSDto> (
+data class AndroidResponseDto(
     @SerializedName("code")
     val code: Int?,
     @SerializedName("data")

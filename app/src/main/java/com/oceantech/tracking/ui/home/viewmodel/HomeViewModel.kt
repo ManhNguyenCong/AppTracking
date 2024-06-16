@@ -1,4 +1,4 @@
-package com.oceantech.tracking.ui.home
+package com.oceantech.tracking.ui.home.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
@@ -11,6 +11,7 @@ import com.airbnb.mvrx.ViewModelContext
 import com.oceantech.tracking.core.TrackingViewModel
 import com.oceantech.tracking.data.model.CommentsDtoReq
 import com.oceantech.tracking.data.model.LikesDtoReq
+import com.oceantech.tracking.data.model.PostsDtoReq
 import com.oceantech.tracking.data.model.SearchDto
 import com.oceantech.tracking.data.model.TrackingDtoReq
 import com.oceantech.tracking.data.model.UserDtoReq
@@ -24,6 +25,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import java.net.NetworkInterface
 import java.net.SocketException
 
@@ -39,6 +41,8 @@ class HomeViewModel @AssistedInject constructor(
     var language: Int = 1
     override fun handle(action: HomeViewAction) {
         when (action) {
+            is HomeViewAction.SetNavUp -> handleSetNavUp()
+
             is HomeViewAction.GetCurrentUser -> handleCurrentUser()
             is HomeViewAction.ResetLang -> handResetLang()
             is HomeViewAction.Logout -> handLogout()
@@ -55,6 +59,15 @@ class HomeViewModel @AssistedInject constructor(
             is HomeViewAction.GetNewPosts -> handleGetNewPosts(action.search)
             is HomeViewAction.CommentPosts -> handleCommentPosts(action.postId, action.comment)
             is HomeViewAction.LikePosts -> handleLikePosts(action.postId, action.like)
+
+            is HomeViewAction.createPost -> handleCreatePost(action.postReq)
+        }
+    }
+
+    private fun handleCreatePost(postReq: PostsDtoReq) {
+        setState { copy(asyncCreatePost = Loading()) }
+        postsRepo.create(postReq).execute {
+            copy(asyncCreatePost = it)
         }
     }
 
@@ -140,6 +153,10 @@ class HomeViewModel @AssistedInject constructor(
         }
     }
 
+    private fun handleSetNavUp() {
+        _viewEvents.post(HomeViewEvent.SetNavUp)
+    }
+
     private fun handResetLang() {
         _viewEvents.post(HomeViewEvent.ResetLanguage)
     }
@@ -148,12 +165,6 @@ class HomeViewModel @AssistedInject constructor(
         setState { copy(userCurrent = Loading(), asyncUpdateMyself = Uninitialized) }
         userRepo.getCurrentUser().execute {
             copy(userCurrent = it)
-        }
-    }
-
-    fun clearUserPreferences() {
-        this.viewModelScope.async {
-            userRepo.clearUserPreferences()
         }
     }
 

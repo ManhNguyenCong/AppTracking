@@ -1,4 +1,4 @@
-package com.oceantech.tracking.ui.security
+package com.oceantech.tracking.ui.security.fragment
 
 
 import android.view.LayoutInflater

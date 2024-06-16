@@ -1,4 +1,4 @@
-package com.oceantech.tracking.ui.home
+package com.oceantech.tracking.ui.home.fragment
 
 import android.app.DatePickerDialog
 import android.os.Build
@@ -18,6 +18,8 @@ import com.oceantech.tracking.data.model.RoleDtoReq
 import com.oceantech.tracking.data.model.UserDto
 import com.oceantech.tracking.data.model.UserDtoReq
 import com.oceantech.tracking.databinding.FragmentPersonalInfoBinding
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewAction
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewModel
 import com.oceantech.tracking.utils.format
 import com.oceantech.tracking.utils.toLocalDate
 import java.util.Calendar

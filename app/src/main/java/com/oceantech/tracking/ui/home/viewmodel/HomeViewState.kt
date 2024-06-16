@@ -1,9 +1,10 @@
-package com.oceantech.tracking.ui.home
+package com.oceantech.tracking.ui.home.viewmodel
 
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.MvRxState
 import com.airbnb.mvrx.Uninitialized
+import com.oceantech.tracking.data.model.AndroidResponseDto
 import com.oceantech.tracking.data.model.CommentsDtoRes
 import com.oceantech.tracking.data.model.LikesDtoRes
 import com.oceantech.tracking.data.model.NotificationDto
@@ -29,7 +30,9 @@ data class HomeViewState(
 
     val asyncNewPosts: Async<Page<PostsDto>> = Uninitialized,
     val asyncCommentPosts: Async<CommentsDtoRes> = Uninitialized,
-    val asyncLikePosts: Async<LikesDtoRes> = Uninitialized
+    val asyncLikePosts: Async<LikesDtoRes> = Uninitialized,
+
+    val asyncCreatePost: Async<AndroidResponseDto> = Uninitialized
 ) : MvRxState {
     fun isLoading() = userCurrent is Loading ||
             asyncLogout is Loading ||
@@ -42,5 +45,6 @@ data class HomeViewState(
             asyncUpdateMyself is Loading ||
             asyncNewPosts is Loading ||
             asyncCommentPosts is Loading ||
-            asyncLikePosts is Loading
+            asyncLikePosts is Loading ||
+            asyncCreatePost is Loading
 }

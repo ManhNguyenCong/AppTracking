@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#dcdcdc"
-    tools:context=".ui.home.BlogFragment">
+    tools:context=".ui.home.fragment.BlogFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvPosts"

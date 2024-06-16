@@ -1,4 +1,4 @@
-package com.oceantech.tracking.ui.security
+package com.oceantech.tracking.ui.security.viewmodel
 
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.Loading

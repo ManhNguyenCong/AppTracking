@@ -47,12 +47,6 @@ fun Date.toLocalDate(): LocalDate {
         .toLocalDate()
 }
 
-fun Date.toLocalDateTime(): LocalDateTime {
-    return this.toInstant()
-        .atZone(ZoneId.systemDefault())
-        .toLocalDateTime()
-}
-
 fun AppCompatActivity.addFragment(
     frameId: Int,
     fragment: Fragment,

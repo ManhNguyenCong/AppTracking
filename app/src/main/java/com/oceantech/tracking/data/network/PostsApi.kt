@@ -1,5 +1,6 @@
 package com.oceantech.tracking.data.network
 
+import com.oceantech.tracking.data.model.AndroidResponseDto
 import com.oceantech.tracking.data.model.CommentsDto
 import com.oceantech.tracking.data.model.CommentsDtoReq
 import com.oceantech.tracking.data.model.CommentsDtoRes
@@ -7,6 +8,7 @@ import com.oceantech.tracking.data.model.LikesDtoReq
 import com.oceantech.tracking.data.model.LikesDtoRes
 import com.oceantech.tracking.data.model.Page
 import com.oceantech.tracking.data.model.PostsDto
+import com.oceantech.tracking.data.model.PostsDtoReq
 import com.oceantech.tracking.data.model.SearchDto
 import io.reactivex.Observable
 import retrofit2.http.Body
@@ -23,4 +25,7 @@ interface PostsApi {
 
     @POST("posts/likes/{id}")
     fun likePosts(@Path("id") postId: Int, @Body like: LikesDtoReq): Observable<LikesDtoRes>
+
+    @POST("posts/create")
+    fun create(@Body postReq: PostsDtoReq): Observable<AndroidResponseDto>
 }

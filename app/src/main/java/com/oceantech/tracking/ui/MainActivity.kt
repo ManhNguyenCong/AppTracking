@@ -35,11 +35,11 @@ import com.oceantech.tracking.TrackingApplication
 import com.oceantech.tracking.core.TrackingBaseActivity
 import com.oceantech.tracking.data.network.SessionManager
 import com.oceantech.tracking.databinding.ActivityMainBinding
-import com.oceantech.tracking.ui.home.HomeViewAction
-import com.oceantech.tracking.ui.home.HomeViewEvent
-import com.oceantech.tracking.ui.home.HomeViewModel
-import com.oceantech.tracking.ui.home.HomeViewState
-import com.oceantech.tracking.ui.home.TestViewModel
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewAction
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewEvent
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewModel
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewState
+import com.oceantech.tracking.ui.home.viewmodel.TestViewModel
 import com.oceantech.tracking.utils.LocalHelper
 import java.util.Locale
 import javax.inject.Inject
@@ -83,6 +83,11 @@ class MainActivity : TrackingBaseActivity<ActivityMainBinding>(), HomeViewModel.
                 views.appBarMain.contentMain.waitingView.visibility = View.GONE
         }
 
+        homeViewModel.observeViewEvents {
+            if (it is HomeViewEvent.SetNavUp) {
+                isNavigateUp = true
+            }
+        }
     }
 
     override fun create(initialState: HomeViewState): HomeViewModel {
@@ -234,7 +239,6 @@ class MainActivity : TrackingBaseActivity<ActivityMainBinding>(), HomeViewModel.
 
             R.id.menu_notification -> {
                 navigateTo(R.id.notificationsFragment)
-                isNavigateUp = true
                 return true
             }
 

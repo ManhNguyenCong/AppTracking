@@ -1,4 +1,4 @@
-package com.oceantech.tracking.ui.home
+package com.oceantech.tracking.ui.home.fragment
 
 import android.content.Intent
 import android.os.Bundle
@@ -13,18 +13,17 @@ import com.airbnb.mvrx.activityViewModel
 import com.airbnb.mvrx.withState
 import com.oceantech.tracking.R
 import com.oceantech.tracking.core.TrackingBaseFragment
-import com.oceantech.tracking.data.model.NotificationDto
 import com.oceantech.tracking.data.model.SearchDto
 import com.oceantech.tracking.data.model.TrackingDtoReq
 import com.oceantech.tracking.data.model.UserDto
 import com.oceantech.tracking.data.model.toReq
-import com.oceantech.tracking.data.network.SessionManager
 import com.oceantech.tracking.databinding.FragmentHomeBinding
+import com.oceantech.tracking.ui.home.adapter.UserAdapter
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewAction
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewEvent
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewModel
 import com.oceantech.tracking.ui.security.LoginActivity
 import com.oceantech.tracking.utils.toLocalDate
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.time.Instant
 import java.util.Date
 import javax.inject.Inject
@@ -37,6 +36,7 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
     private var todayTrackingId: Int? = null
 
     private lateinit var adapter: UserAdapter
+    private var pageIndex = 0
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentHomeBinding {
         return FragmentHomeBinding.inflate(inflater, container, false)
@@ -47,6 +47,7 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
         views.tvLogout.setOnClickListener {
             viewModel.handle(HomeViewAction.Logout)
         }
+
         views.btnCheckin.setOnClickListener {
             checkIn()
         }
@@ -57,9 +58,10 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
                 updateTracking()
             }
         }
+
         adapter = UserAdapter(
             setTvGender = { tv, gender ->
-                tv.text = when(gender) {
+                tv.text = when (gender) {
                     "M" -> getString(R.string.male)
                     "F" -> getString(R.string.female)
                     else -> getString(R.string.unknown)
@@ -77,6 +79,13 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
             }
         )
         views.rvUsers.adapter = adapter
+        views.btnPrevious.setOnClickListener {
+            viewModel.handle(HomeViewAction.SearchByPage(SearchDto("", --pageIndex, 10, 0)))
+        }
+        views.btnNext.setOnClickListener {
+            viewModel.handle(HomeViewAction.SearchByPage(SearchDto("", ++pageIndex, 10, 0)))
+        }
+
 
         viewModel.observeViewEvents {
             handleEvent(it)
@@ -88,24 +97,7 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
         // Get today check in
         viewModel.handle(HomeViewAction.GetTimeSheetsByUser)
         // Get users
-        viewModel.handle(HomeViewAction.SearchByPage(SearchDto("", 0, 100, 0)))
-
-//        viewModel.getNotificationsByUser().enqueue(object: Callback<List<NotificationDto>> {
-//            override fun onResponse(
-//                call: Call<List<NotificationDto>>,
-//                response: Response<List<NotificationDto>>
-//            ) {
-//                if (response.isSuccessful) {
-//                    Log.d("Test Tracking", "onResponse: " + response.body()?.joinToString("\n"))
-//                } else {
-//                    Log.e("Test Tracking", "onResponse: " + response.toString())
-//                }
-//            }
-//
-//            override fun onFailure(call: Call<List<NotificationDto>>, t: Throwable) {
-//                Log.e("Test Tracking", "onResponse: " + t.toString())
-//            }
-//        })
+        viewModel.handle(HomeViewAction.SearchByPage(SearchDto("", pageIndex, 10, 0)))
     }
 
     private fun checkIn() {
@@ -159,7 +151,8 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
     private fun handleEvent(it: HomeViewEvent) {
         when (it) {
             is HomeViewEvent.ResetLanguage -> {
-                views.tvWelcome.text = String.format(getString(R.string.welcome), currentUser?.displayName ?: "")
+                views.tvWelcome.text =
+                    String.format(getString(R.string.welcome), currentUser?.displayName ?: "")
                 views.tvLogout.text = getString(R.string.logout)
                 views.tvUsersTitle.text = getString(R.string.users)
                 views.btnCheckin.text = if (views.btnCheckin.isEnabled) {
@@ -261,7 +254,9 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
                 it.userCurrent.invoke().let { user ->
                     currentUser = user
                     views.tvWelcome.text =
-                        String.format(getString(R.string.welcome), user.displayName?.ifEmpty { user.username })
+                        String.format(
+                            getString(R.string.welcome),
+                            user.displayName?.ifEmpty { user.username })
                 }
             }
 
@@ -324,13 +319,19 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
         when (it.asyncPage) {
             is Success -> {
                 it.asyncPage.invoke().let { page ->
+                    views.pageLayout.visibility = if (page.empty) View.GONE else View.VISIBLE
+                    views.btnPrevious.visibility = if (page.first) View.GONE else View.VISIBLE
+                    views.btnNext.visibility = if (page.last) View.GONE else View.VISIBLE
+                    views.pageNumber.text = "${page.number + 1}/${page.totalPages}"
+
                     adapter.submitList(page.content)
                 }
             }
 
             is Fail -> {
                 Log.e("Test Tracking", "invalidate: " + it.asyncPage.toString())
-                Toast.makeText(requireContext(), "Can't load list users!!!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Can't load list users!!!", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }

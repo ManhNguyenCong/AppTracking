@@ -1,6 +1,5 @@
-package com.oceantech.tracking.ui.home
+package com.oceantech.tracking.ui.home.adapter
 
-import android.app.Application
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -9,7 +8,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.oceantech.tracking.data.model.UserDto
 import com.oceantech.tracking.databinding.ItemUsersListBinding
-import javax.inject.Inject
 
 class UserAdapter(
     private val setTvGender: (TextView, String?) -> Unit,

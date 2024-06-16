@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/nimpe_background_login"
-    tools:context=".ui.security.SigninFragment">
+    tools:context=".ui.security.fragment.SigninFragment">
 
     <LinearLayout
         android:layout_width="match_parent"

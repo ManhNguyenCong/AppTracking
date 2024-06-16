@@ -7,24 +7,33 @@
 
     <fragment
         android:id="@+id/nav_HomeFragment"
-        android:name="com.oceantech.tracking.ui.home.HomeFragment"
+        android:name="com.oceantech.tracking.ui.home.fragment.HomeFragment"
         android:label="@string/app_name"
         tools:layout="@layout/fragment_home">
     </fragment>
     <fragment
         android:id="@+id/blogFragment"
-        android:name="com.oceantech.tracking.ui.home.BlogFragment"
+        android:name="com.oceantech.tracking.ui.home.fragment.BlogFragment"
         android:label="fragment_blog"
-        tools:layout="@layout/fragment_blog" />
+        tools:layout="@layout/fragment_blog" >
+        <action
+            android:id="@+id/action_blogFragment_to_newPostFragment"
+            app:destination="@id/newPostFragment" />
+    </fragment>
     <fragment
         android:id="@+id/personalInfoFragment"
-        android:name="com.oceantech.tracking.ui.home.PersonalInfoFragment"
+        android:name="com.oceantech.tracking.ui.home.fragment.PersonalInfoFragment"
         android:label="fragment_personal_info"
         tools:layout="@layout/fragment_personal_info" />
     <fragment
         android:id="@+id/notificationsFragment"
-        android:name="com.oceantech.tracking.ui.home.NotificationsFragment"
+        android:name="com.oceantech.tracking.ui.home.fragment.NotificationsFragment"
         android:label="fragment_notifications"
         tools:layout="@layout/fragment_notifications" />
+    <fragment
+        android:id="@+id/newPostFragment"
+        android:name="com.oceantech.tracking.ui.home.fragment.NewPostFragment"
+        android:label="fragment_new_post"
+        tools:layout="@layout/fragment_new_post" />
 
 </navigation>

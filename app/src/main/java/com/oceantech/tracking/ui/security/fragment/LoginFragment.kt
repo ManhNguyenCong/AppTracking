@@ -1,4 +1,4 @@
-package com.oceantech.tracking.ui.security
+package com.oceantech.tracking.ui.security.fragment
 
 import android.content.Intent
 import android.os.Bundle
@@ -17,6 +17,8 @@ import com.oceantech.tracking.core.TrackingBaseFragment
 import com.oceantech.tracking.data.network.SessionManager
 import com.oceantech.tracking.databinding.FragmentLoginBinding
 import com.oceantech.tracking.ui.MainActivity
+import com.oceantech.tracking.ui.security.viewmodel.SecurityViewAction
+import com.oceantech.tracking.ui.security.viewmodel.SecurityViewModel
 import javax.inject.Inject
 
 class LoginFragment @Inject constructor() : TrackingBaseFragment<FragmentLoginBinding>() {

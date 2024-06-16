@@ -1,15 +1,12 @@
-package com.oceantech.tracking.ui.home
+package com.oceantech.tracking.ui.home.fragment
 
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.navigateUp
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.activityViewModel
@@ -17,6 +14,9 @@ import com.airbnb.mvrx.withState
 import com.oceantech.tracking.R
 import com.oceantech.tracking.core.TrackingBaseFragment
 import com.oceantech.tracking.databinding.FragmentNotificationsBinding
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewAction
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewModel
+import com.oceantech.tracking.ui.home.adapter.NotificationAdapter
 import javax.inject.Inject
 
 class NotificationsFragment @Inject constructor() :
@@ -27,7 +27,6 @@ class NotificationsFragment @Inject constructor() :
     private lateinit var adapter: NotificationAdapter
 
     private var toolbar: Toolbar? = null
-
 
     override fun getBinding(
         inflater: LayoutInflater,
@@ -46,6 +45,8 @@ class NotificationsFragment @Inject constructor() :
 
         toolbar = activity?.findViewById(R.id.toolbar)
         toolbar?.menu?.findItem(R.id.menu_notification)?.isVisible = false
+
+        viewModel.handle(HomeViewAction.SetNavUp)
     }
 
     override fun onDestroy() {
