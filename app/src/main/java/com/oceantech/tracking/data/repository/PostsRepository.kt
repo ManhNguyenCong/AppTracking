@@ -27,4 +27,6 @@ class PostsRepository(
 
     fun create(postReq: PostsDtoReq): Observable<AndroidResponseDto> =
         api.create(postReq).subscribeOn(Schedulers.io())
+
+//    fun getImageFile(fileName: String) = api.getImageFile(fileName)
 }

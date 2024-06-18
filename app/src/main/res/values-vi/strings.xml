@@ -6,8 +6,8 @@
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="next">Trang sau</string>
+    <string name="previous">Trang trước</string>
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
@@ -106,4 +106,10 @@
     <string name="comment">Bình luận</string>
     <string name="like">Thích</string>
     <string name="liked">Đã thích</string>
+    <string name="upload_image">Tải ảnh</string>
+    <string name="delete">Xóa</string>
+    <string name="edit">Chỉnh sửa</string>
+    <string name="block">Khóa</string>
+    <string name="login_session_expired">Phiên đăng nhập hết hạn</string>
+    <string name="login_session_expired_content">Phiên đăng nhập của bạn đã hết hạn. Vui lòng đăng nhập lại!</string>
 </resources>

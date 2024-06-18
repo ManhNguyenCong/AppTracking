@@ -105,4 +105,10 @@
     <string name="comment">Comment</string>
     <string name="like">Like</string>
     <string name="liked">Liked</string>
+    <string name="upload_image">Upload Image</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="block">Block</string>
+    <string name="login_session_expired">Login session expired</string>
+    <string name="login_session_expired_content">Your login session has expired. Please log in again!</string>
 </resources>

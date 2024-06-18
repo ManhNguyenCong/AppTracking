@@ -10,12 +10,15 @@
         android:name="com.oceantech.tracking.ui.home.fragment.HomeFragment"
         android:label="@string/app_name"
         tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_nav_HomeFragment_to_detailUserFragment"
+            app:destination="@id/detailUserFragment" />
     </fragment>
     <fragment
         android:id="@+id/blogFragment"
         android:name="com.oceantech.tracking.ui.home.fragment.BlogFragment"
         android:label="fragment_blog"
-        tools:layout="@layout/fragment_blog" >
+        tools:layout="@layout/fragment_blog">
         <action
             android:id="@+id/action_blogFragment_to_newPostFragment"
             app:destination="@id/newPostFragment" />
@@ -35,5 +38,14 @@
         android:name="com.oceantech.tracking.ui.home.fragment.NewPostFragment"
         android:label="fragment_new_post"
         tools:layout="@layout/fragment_new_post" />
+    <fragment
+        android:id="@+id/detailUserFragment"
+        android:name="com.oceantech.tracking.ui.home.fragment.DetailUserFragment"
+        android:label="fragment_detail_user"
+        tools:layout="@layout/fragment_detail_user">
+        <argument
+            android:name="id"
+            app:argType="integer" />
+    </fragment>
 
 </navigation>

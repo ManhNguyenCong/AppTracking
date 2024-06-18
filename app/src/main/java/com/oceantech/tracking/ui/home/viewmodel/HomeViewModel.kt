@@ -1,7 +1,6 @@
 package com.oceantech.tracking.ui.home.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.viewModelScope
 import com.airbnb.mvrx.ActivityViewModelContext
 import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.Loading
@@ -24,8 +23,6 @@ import com.oceantech.tracking.data.repository.UserRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import java.net.NetworkInterface
 import java.net.SocketException
 
@@ -45,6 +42,7 @@ class HomeViewModel @AssistedInject constructor(
 
             is HomeViewAction.GetCurrentUser -> handleCurrentUser()
             is HomeViewAction.ResetLang -> handResetLang()
+
             is HomeViewAction.Logout -> handLogout()
             is HomeViewAction.CheckIn -> handCheckIn(action.ip)
             is HomeViewAction.SaveTracking -> handSaveTracking(action.tracking)
@@ -56,12 +54,35 @@ class HomeViewModel @AssistedInject constructor(
             is HomeViewAction.GetNotificationsByUser -> handleGetNotifications()
             is HomeViewAction.UpdateMyself -> handleUpdateMySelf(action.user)
 
-            is HomeViewAction.GetNewPosts -> handleGetNewPosts(action.search)
+            is HomeViewAction.GetPosts -> handleGetNewPosts(action.search)
             is HomeViewAction.CommentPosts -> handleCommentPosts(action.postId, action.comment)
             is HomeViewAction.LikePosts -> handleLikePosts(action.postId, action.like)
 
-            is HomeViewAction.createPost -> handleCreatePost(action.postReq)
+            is HomeViewAction.CreatePost -> handleCreatePost(action.postReq)
+
+            is HomeViewAction.GetUserById -> handleGetUserById(action.id)
+            is HomeViewAction.Edit -> handleEdit(action.id, action.userReq)
+            is HomeViewAction.Block -> handleBlock(action.id)
         }
+    }
+
+    private fun handleBlock(id: Int) {
+        setState { copy(asyncBlock = Loading(), asyncEdit = Uninitialized, asyncUser = Uninitialized) }
+        userRepo.block(id).execute {
+            copy(asyncBlock = it)
+        }
+    }
+
+    private fun handleEdit(id: Int, userReq: UserDtoReq) {
+        setState { copy(asyncEdit = Loading(), asyncUser = Uninitialized, asyncBlock = Uninitialized) }
+        userRepo.edit(id, userReq).execute {
+            copy(asyncEdit = it)
+        }
+    }
+
+    private fun handleGetUserById(id: Int) {
+        setState { copy(asyncUser = Loading()) }
+        userRepo.getUserById(id).execute { copy(asyncUser = it) }
     }
 
     private fun handleCreatePost(postReq: PostsDtoReq) {
@@ -72,23 +93,23 @@ class HomeViewModel @AssistedInject constructor(
     }
 
     private fun handleLikePosts(postId: Int, like: LikesDtoReq) {
-        setState { copy(asyncNewPosts = Uninitialized, asyncLikePosts = Loading()) }
+        setState { copy(asyncPosts = Uninitialized, asyncLikePosts = Loading()) }
         postsRepo.likePosts(postId, like).execute {
             copy(asyncLikePosts = it)
         }
     }
 
     private fun handleCommentPosts(postId: Int, commentReq: CommentsDtoReq) {
-        setState { copy(asyncNewPosts = Uninitialized, asyncCommentPosts = Loading()) }
+        setState { copy(asyncPosts = Uninitialized, asyncCommentPosts = Loading()) }
         postsRepo.commentPosts(postId, commentReq).execute {
             copy(asyncCommentPosts = it)
         }
     }
 
     private fun handleGetNewPosts(search: SearchDto) {
-        setState { copy(asyncNewPosts = Loading(), asyncCommentPosts = Uninitialized, asyncLikePosts = Uninitialized) }
+        setState { copy(asyncPosts = Loading(), asyncCommentPosts = Uninitialized, asyncLikePosts = Uninitialized) }
         postsRepo.getNewPosts(search).execute {
-            copy(asyncNewPosts = it)
+            copy(asyncPosts = it)
         }
     }
 
@@ -111,36 +132,36 @@ class HomeViewModel @AssistedInject constructor(
         }
     }
 
-    private fun handGetTimeSheetsByUser() {
-        setState { copy(timeSheets = Loading()) }
-        timeSheetRepo.getAllByUser().execute {
-            copy(timeSheets = it)
-        }
-    }
-
     private fun handGetTrackingsByUser() {
-        setState { copy(trackings = Loading()) }
+        setState { copy(trackings = Loading(), asyncSaveTracking = Uninitialized, asyncUpdateTracking = Uninitialized) }
         trackingRepo.getAllByUser().execute {
             copy(trackings = it)
         }
     }
 
     private fun handSaveTracking(tracking: TrackingDtoReq) {
-        setState { copy(asyncSaveTracking = Loading()) }
+        setState { copy(asyncSaveTracking = Loading(), asyncUpdateTracking = Uninitialized, trackings = Uninitialized) }
         trackingRepo.save(tracking).execute {
             copy(asyncSaveTracking = it)
         }
     }
 
     private fun handUpdateTracking(id: Int, tracking: TrackingDtoReq) {
-        setState { copy(asyncUpdateTracking = Loading()) }
+        setState { copy(asyncUpdateTracking = Loading(), asyncSaveTracking = Uninitialized, trackings = Uninitialized) }
         trackingRepo.update(id, tracking).execute {
             copy(asyncUpdateTracking = it)
         }
     }
 
+    private fun handGetTimeSheetsByUser() {
+        setState { copy(timeSheets = Loading(), asyncCheckIn = Uninitialized) }
+        timeSheetRepo.getAllByUser().execute {
+            copy(timeSheets = it)
+        }
+    }
+
     private fun handCheckIn(ip: String) {
-        setState { copy(asyncCheckIn = Loading()) }
+        setState { copy(asyncCheckIn = Loading(), timeSheets = Uninitialized) }
         timeSheetRepo.checkIn(ip).execute {
             copy(asyncCheckIn = it)
         }
@@ -186,6 +207,24 @@ class HomeViewModel @AssistedInject constructor(
 
         return null
     }
+
+
+//    fun getImageFile() {
+//        postsRepo.getImageFile("").enqueue(object : retrofit2.Callback<Resource> {
+//            override fun onResponse(call: Call<Resource>, response: Response<Resource>) {
+//                if (response.isSuccessful) {
+//                    Log.d("Test Tracking", "onResponse: ${response.body()}")
+//                } else {
+//                    Log.e("Test Tracking", "onResponse: $response")
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<Resource>, t: Throwable) {
+//                Log.e("Test Tracking", "onResponse: ${t.stackTraceToString()}")
+//            }
+//
+//        })
+//    }
 
     @AssistedFactory
     interface Factory {

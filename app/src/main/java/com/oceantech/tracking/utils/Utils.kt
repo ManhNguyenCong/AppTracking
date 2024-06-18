@@ -47,6 +47,10 @@ fun Date.toLocalDate(): LocalDate {
         .toLocalDate()
 }
 
+fun LocalDate.format(pattern: String): String {
+    return this.format(DateTimeFormatter.ofPattern(pattern))
+}
+
 fun AppCompatActivity.addFragment(
     frameId: Int,
     fragment: Fragment,

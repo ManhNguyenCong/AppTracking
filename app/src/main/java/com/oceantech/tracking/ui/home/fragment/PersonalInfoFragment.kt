@@ -14,9 +14,8 @@ import com.airbnb.mvrx.activityViewModel
 import com.airbnb.mvrx.withState
 import com.oceantech.tracking.R
 import com.oceantech.tracking.core.TrackingBaseFragment
-import com.oceantech.tracking.data.model.RoleDtoReq
 import com.oceantech.tracking.data.model.UserDto
-import com.oceantech.tracking.data.model.UserDtoReq
+import com.oceantech.tracking.data.model.toReq
 import com.oceantech.tracking.databinding.FragmentPersonalInfoBinding
 import com.oceantech.tracking.ui.home.viewmodel.HomeViewAction
 import com.oceantech.tracking.ui.home.viewmodel.HomeViewModel
@@ -76,8 +75,6 @@ class PersonalInfoFragment @Inject constructor() :
         views.save.setOnClickListener {
             updateMyself()
         }
-
-        viewModel.handle(HomeViewAction.GetCurrentUser)
     }
 
     private fun updateMyself() {
@@ -102,34 +99,14 @@ class PersonalInfoFragment @Inject constructor() :
         user?.let {
             viewModel.handle(
                 HomeViewAction.UpdateMyself(
-                    UserDtoReq(
-                        id = it.id,
+                    it.toReq().copy(
                         firstName = firstName.ifEmpty { it.firstName },
                         lastName = lastName.ifEmpty { it.lastName },
-                        username = it.username,
                         displayName = displayName,
                         gender = gender ?: it.gender,
                         dob = this.dob ?: it.dob,
                         birthPlace = birthPlace.ifEmpty { it.birthPlace },
-                        hasPhoto = it.hasPhoto,
-                        image = it.image,
-                        email = it.email,
                         university = university.ifEmpty { it.university },
-                        changePass = it.changePass,
-                        setPassword = it.setPassword,
-                        password = it.password,
-                        confirmPassword = it.confirmPassword,
-                        countDayCheckin = it.countDayCheckin,
-                        countDayTracking = it.countDayTracking,
-                        roles = it.roles?.map { roleDto ->
-                            RoleDtoReq(
-                                roleDto.description,
-                                roleDto.id,
-                                roleDto.name
-                            )
-                        },
-                        active = it.active,
-                        tokenDevice = it.tokenDevice,
                         year = year ?: it.year
                     )
                 )
@@ -152,17 +129,23 @@ class PersonalInfoFragment @Inject constructor() :
                     "Has error: ${it.userCurrent.error}",
                     Toast.LENGTH_SHORT
                 ).show()
-                Log.d("Test", "invalidate: " + it.userCurrent.toString())
+                Log.e("Test", "invalidate: ${it.userCurrent}")
             }
         }
 
-        when(it.asyncUpdateMyself) {
+        when (it.asyncUpdateMyself) {
             is Success -> {
                 Toast.makeText(requireContext(), "Update successful!!!", Toast.LENGTH_SHORT).show()
+                viewModel.handle(HomeViewAction.GetCurrentUser)
             }
+
             is Fail -> {
-                Toast.makeText(requireContext(), "Has error: ${it.asyncUpdateMyself.error}", Toast.LENGTH_SHORT).show()
-                Log.d("Test", "invalidate: " + it.asyncUpdateMyself.toString())
+                Toast.makeText(
+                    requireContext(),
+                    "Has error: ${it.asyncUpdateMyself.error.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+                Log.e("Test", "invalidate: ${it.asyncUpdateMyself}")
             }
         }
     }
@@ -188,14 +171,7 @@ class PersonalInfoFragment @Inject constructor() :
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 views.edtDob.setText(dob.format(null))
             } else {
-                views.edtDob.setText(
-                    String.format(
-                        "%02d/%02d/%d",
-                        dob.day,
-                        dob.month + 1,
-                        dob.year
-                    )
-                )
+                views.edtDob.setText(dob.toLocalDate().format(pattern = "dd/MM/yyyy"))
             }
         }
 

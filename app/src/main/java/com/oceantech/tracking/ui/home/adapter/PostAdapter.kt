@@ -51,6 +51,8 @@ class PostAdapter(
 
             binding.dateTime.text = post.date?.format() ?: context.getString(R.string.unknown)
             binding.content.text = post.content ?: context.getString(R.string.unknown)
+
+            Log.d("Test Tracking", "bind: image: ${post.media?.joinToString("\n")}")
             if (!post.media.isNullOrEmpty()) {
                 // Todo set media
                 binding.mediaLayout.visibility = View.VISIBLE
@@ -159,7 +161,6 @@ class PostAdapter(
             } else {
                 String.format(context.getString(R.string.count_likes), likes.size)
             }
-            Log.d("Test", "bindLikes: " + likes.joinToString("\n") { it.user.toString() })
             binding.likeNum.setOnClickListener { showLiked(likes) }
         }
     }

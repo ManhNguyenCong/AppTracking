@@ -1,15 +1,15 @@
 package com.oceantech.tracking.ui.security
 
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
 import com.airbnb.mvrx.viewModel
-import com.oceantech.tracking.TrackingApplication
 import com.oceantech.tracking.R
+import com.oceantech.tracking.TrackingApplication
 import com.oceantech.tracking.core.TrackingBaseActivity
 import com.oceantech.tracking.data.network.SessionManager
 import com.oceantech.tracking.databinding.ActivityLoginBinding
-import com.oceantech.tracking.ui.home.fragment.NewPostFragment
 import com.oceantech.tracking.ui.security.fragment.LoginFragment
 import com.oceantech.tracking.ui.security.fragment.ResetPasswordFragment
 import com.oceantech.tracking.ui.security.fragment.SigninFragment
@@ -40,7 +40,18 @@ class LoginActivity : TrackingBaseActivity<ActivityLoginBinding>(), SecurityView
         print(viewModel.getString())
 
         val session = SessionManager(this)
-        session.clearToken()
+
+        if (!session.fetchAuthToken().isNullOrEmpty()) {
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.login_session_expired))
+                .setMessage(getString(R.string.login_session_expired_content))
+                .setPositiveButton(getString(R.string.ok)) { _, _ ->
+                    session.clearToken()
+                }
+                .setCancelable(false)
+                .create()
+                .show()
+        }
         viewModel.clearUserPreferences()
     }
 

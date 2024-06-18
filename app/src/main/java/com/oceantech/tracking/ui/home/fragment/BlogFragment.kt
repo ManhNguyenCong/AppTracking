@@ -29,6 +29,13 @@ class BlogFragment @Inject constructor() : TrackingBaseFragment<FragmentBlogBind
     private var adapter: PostAdapter? = null
 
     private var userCurrent: UserDto? = null
+    private var pageIndex = 0
+        set(value) {
+            field = value
+            searchDto = searchDto.copy(pageIndex = field + 1)
+        }
+    private var searchDto: SearchDto = SearchDto("", pageIndex + 1, 10, 0)
+
 
     override fun getBinding(inflater: LayoutInflater, container: ViewGroup?): FragmentBlogBinding {
         return FragmentBlogBinding.inflate(inflater, container, false)
@@ -46,7 +53,6 @@ class BlogFragment @Inject constructor() : TrackingBaseFragment<FragmentBlogBind
         adapter = PostAdapter(
             context = requireContext(),
             checkLiked = { users ->
-                Log.d("Test", "onViewCreated: " + userCurrent.toString())
                 users.contains(userCurrent)
             },
             onBtnLikeClick = { postId, like ->
@@ -77,13 +83,19 @@ class BlogFragment @Inject constructor() : TrackingBaseFragment<FragmentBlogBind
             }
         )
         views.rvPosts.adapter = adapter
+        views.btnPrevious.setOnClickListener {
+            --pageIndex
+            viewModel.handle(HomeViewAction.GetPosts(searchDto))
+        }
+        views.btnNext.setOnClickListener {
+            ++pageIndex
+            viewModel.handle(HomeViewAction.GetPosts(searchDto))
+        }
 
-        viewModel.handle(HomeViewAction.GetCurrentUser)
-        viewModel.handle(HomeViewAction.GetNewPosts(SearchDto("", 0, 100, 0)))
+        viewModel.handle(HomeViewAction.GetPosts(searchDto))
     }
 
     override fun invalidate(): Unit = withState(viewModel) {
-
         when (it.userCurrent) {
             is Success -> {
                 it.userCurrent.invoke().let { user -> userCurrent = user }
@@ -95,28 +107,32 @@ class BlogFragment @Inject constructor() : TrackingBaseFragment<FragmentBlogBind
             }
         }
 
-        when (it.asyncNewPosts) {
+        when (it.asyncPosts) {
             is Success -> {
-                it.asyncNewPosts.invoke().let { page ->
-                    adapter?.submitList(page.content.reversed())
-                    Log.d("Test", "invalidate: " + page.content.joinToString { post -> post.likes?.joinToString { like -> like.user.toString() } ?: "null" })
+                it.asyncPosts.invoke().let { page ->
+                    views.pageLayout.visibility = if (page.empty) View.GONE else View.VISIBLE
+                    views.btnPrevious.visibility = if (page.first) View.GONE else View.VISIBLE
+                    views.btnNext.visibility = if (page.last) View.GONE else View.VISIBLE
+                    views.pageNumber.text = "${page.number + 1}/${page.totalPages}"
+
+                    adapter?.submitList(page.content)
                 }
             }
 
             is Fail -> {
                 Toast.makeText(
                     requireContext(),
-                    "Has error: ${it.asyncNewPosts.error}",
+                    "Has error: ${it.asyncPosts.error}",
                     Toast.LENGTH_SHORT
                 ).show()
-                Log.d("Test", "invalidate: " + it.asyncNewPosts.toString())
+                Log.d("Test", "invalidate: " + it.asyncPosts.toString())
             }
         }
 
         when (it.asyncCommentPosts) {
             is Success -> {
-                it.asyncCommentPosts.invoke().let { commentRes ->
-                    viewModel.handle(HomeViewAction.GetNewPosts(SearchDto("", 0, 100, 0)))
+                it.asyncCommentPosts.invoke().let {
+                    viewModel.handle(HomeViewAction.GetPosts(searchDto))
                 }
             }
 
@@ -133,7 +149,7 @@ class BlogFragment @Inject constructor() : TrackingBaseFragment<FragmentBlogBind
         when (it.asyncLikePosts) {
             is Success -> {
                 it.asyncLikePosts.invoke().let {
-                    viewModel.handle(HomeViewAction.GetNewPosts(SearchDto("", 0, 100, 0)))
+                    viewModel.handle(HomeViewAction.GetPosts(SearchDto("", 0, 100, 0)))
                 }
             }
 

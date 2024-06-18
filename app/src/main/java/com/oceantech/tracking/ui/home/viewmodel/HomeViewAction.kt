@@ -25,9 +25,13 @@ sealed class HomeViewAction : NimpeViewModelAction {
     data class SearchByPage(val search: SearchDto): HomeViewAction()
     data class UpdateMyself(val user: UserDtoReq): HomeViewAction()
 
-    data class GetNewPosts(val search: SearchDto): HomeViewAction()
+    data class GetPosts(val search: SearchDto): HomeViewAction()
     data class CommentPosts(val postId: Int, val comment: CommentsDtoReq): HomeViewAction()
     data class LikePosts(val postId: Int, val like: LikesDtoReq): HomeViewAction()
 
-    data class createPost(val postReq: PostsDtoReq): HomeViewAction()
+    data class CreatePost(val postReq: PostsDtoReq): HomeViewAction()
+
+    data class GetUserById(val id: Int) : HomeViewAction()
+    data class Edit(val id: Int, val userReq: UserDtoReq): HomeViewAction()
+    data class Block(val id: Int): HomeViewAction()
 }

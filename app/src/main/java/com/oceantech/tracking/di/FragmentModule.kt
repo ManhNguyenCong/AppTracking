@@ -11,6 +11,7 @@ import dagger.multibindings.IntoMap
 interface FragmentModule {
     @Binds
     fun bindFragmentFactory(factory: VectorFragmentFactory): FragmentFactory
+
     @Binds
     @IntoMap
     @FragmentKey(HomeFragment::class)

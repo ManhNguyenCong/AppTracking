@@ -80,6 +80,7 @@ class LoginFragment @Inject constructor() : TrackingBaseFragment<FragmentLoginBi
         when (it.asyncLogin) {
             is Success -> {
                 it.asyncLogin.invoke()?.let { token ->
+                    Log.d("Test Tracking", "invalidate: ${token.accessToken}")
                     val sessionManager =
                         context?.let { it1 -> SessionManager(it1.applicationContext) }
                     token.accessToken?.let { it1 -> sessionManager!!.saveAuthToken(it1) }

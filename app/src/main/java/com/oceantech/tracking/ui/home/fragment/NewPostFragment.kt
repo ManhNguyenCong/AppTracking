@@ -50,7 +50,7 @@ class NewPostFragment : TrackingBaseFragment<FragmentNewPostBinding>() {
         toolbar = activity?.findViewById(R.id.toolbar)
         toolbar?.menu?.findItem(R.id.menu_notification)?.isVisible = false
 
-        viewModel.handle(HomeViewAction.GetCurrentUser)
+//        viewModel.handle(HomeViewAction.GetCurrentUser)
         viewModel.handle(HomeViewAction.SetNavUp)
     }
 
@@ -66,7 +66,7 @@ class NewPostFragment : TrackingBaseFragment<FragmentNewPostBinding>() {
 
         currentUser?.let {
             viewModel.handle(
-                HomeViewAction.createPost(
+                HomeViewAction.CreatePost(
                     PostsDtoReq(
                         0,
                         user = it.toReq(),
@@ -97,6 +97,7 @@ class NewPostFragment : TrackingBaseFragment<FragmentNewPostBinding>() {
             }
 
             is Fail -> {
+                // TODO handle case no current user
                 Toast.makeText(
                     requireContext(), "Has error: " + it.userCurrent.toString(), Toast.LENGTH_SHORT
                 ).show()

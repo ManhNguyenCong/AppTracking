@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.activityViewModel
@@ -17,11 +18,13 @@ import com.oceantech.tracking.data.model.SearchDto
 import com.oceantech.tracking.data.model.TrackingDtoReq
 import com.oceantech.tracking.data.model.UserDto
 import com.oceantech.tracking.data.model.toReq
+import com.oceantech.tracking.data.network.SessionManager
 import com.oceantech.tracking.databinding.FragmentHomeBinding
 import com.oceantech.tracking.ui.home.adapter.UserAdapter
 import com.oceantech.tracking.ui.home.viewmodel.HomeViewAction
 import com.oceantech.tracking.ui.home.viewmodel.HomeViewEvent
 import com.oceantech.tracking.ui.home.viewmodel.HomeViewModel
+import com.oceantech.tracking.ui.home.viewmodel.HomeViewState
 import com.oceantech.tracking.ui.security.LoginActivity
 import com.oceantech.tracking.utils.toLocalDate
 import java.time.Instant
@@ -59,31 +62,26 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
             }
         }
 
-        adapter = UserAdapter(
-            setTvGender = { tv, gender ->
-                tv.text = when (gender) {
-                    "M" -> getString(R.string.male)
-                    "F" -> getString(R.string.female)
-                    else -> getString(R.string.unknown)
-                }
-            },
-            setTvCountDays = { tv, checkinDays, trackingDays ->
-                tv.text = String.format(
-                    getString(R.string.txtCountDays),
-                    checkinDays ?: 0,
-                    trackingDays ?: 0
-                )
-            },
-            setOnItemClick = { userId ->
-                // TODO set event on item click for list users
+        adapter = UserAdapter(setTvGender = { tv, gender ->
+            tv.text = when (gender) {
+                "M" -> getString(R.string.male)
+                "F" -> getString(R.string.female)
+                else -> getString(R.string.unknown)
             }
-        )
+        }, setTvCountDays = { tv, checkinDays, trackingDays ->
+            tv.text = String.format(
+                getString(R.string.txtCountDays), checkinDays ?: 0, trackingDays ?: 0
+            )
+        }, setOnItemClick = { userId ->
+            val action = HomeFragmentDirections.actionNavHomeFragmentToDetailUserFragment(userId)
+            findNavController().navigate(action)
+        })
         views.rvUsers.adapter = adapter
         views.btnPrevious.setOnClickListener {
-            viewModel.handle(HomeViewAction.SearchByPage(SearchDto("", --pageIndex, 10, 0)))
+            viewModel.handle(HomeViewAction.SearchByPage(SearchDto("", --pageIndex + 1, 10, 0)))
         }
         views.btnNext.setOnClickListener {
-            viewModel.handle(HomeViewAction.SearchByPage(SearchDto("", ++pageIndex, 10, 0)))
+            viewModel.handle(HomeViewAction.SearchByPage(SearchDto("", ++pageIndex + 1, 10, 0)))
         }
 
 
@@ -97,7 +95,7 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
         // Get today check in
         viewModel.handle(HomeViewAction.GetTimeSheetsByUser)
         // Get users
-        viewModel.handle(HomeViewAction.SearchByPage(SearchDto("", pageIndex, 10, 0)))
+        viewModel.handle(HomeViewAction.SearchByPage(SearchDto("", pageIndex + 1, 10, 0)))
     }
 
     private fun checkIn() {
@@ -168,12 +166,14 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
     override fun invalidate(): Unit = withState(viewModel) {
         when (it.asyncLogout) {
             is Success -> {
+                val session = SessionManager(requireContext())
+                session.clearToken()
                 startActivity(Intent(requireContext(), LoginActivity::class.java))
                 activity?.finish()
             }
 
             is Fail -> {
-                Log.d("Test Tracking", "invalidate: asyncLogout: " + it.asyncLogout.toString())
+                Log.e("Test Tracking", "invalidate: asyncLogout: ${it.asyncLogout}")
                 Toast.makeText(
                     requireContext(),
                     "Has error: " + it.asyncLogout.error.message,
@@ -182,137 +182,25 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
             }
         }
 
-        when (it.asyncCheckIn) {
-            is Success -> {
-                it.asyncCheckIn.invoke().let { timeSheet ->
-                    if (!views.btnCheckin.isEnabled) return@let
-
-                    Toast.makeText(requireContext(), timeSheet.message, Toast.LENGTH_SHORT).show()
-                    views.btnCheckin.text = getString(R.string.checked)
-                    views.btnCheckin.isEnabled = false
-                }
-            }
-
-            is Fail -> {
-                Log.d("Test Tracking", "invalidate: asyncCheckIn: " + it.asyncCheckIn.toString())
-            }
-        }
-
-        when (it.asyncSaveTracking) {
-            is Success -> {
-                it.asyncSaveTracking.invoke().let { tracking ->
-                    if (todayTrackingId != null) return@let
-
-                    views.btnTracking.text = "Update Tracking"
-                    todayTrackingId = tracking.id
-                    Toast.makeText(
-                        requireContext(), "Save Tracking Successful!", Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            is Fail -> {
-                Log.d(
-                    "Test Tracking",
-                    "invalidate: asyncSaveTracking: " + it.asyncSaveTracking.toString()
-                )
-                Toast.makeText(
-                    requireContext(),
-                    "Has error: " + it.asyncSaveTracking.error.message,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-
-        when (it.asyncUpdateTracking) {
-            is Success -> {
-                it.asyncUpdateTracking.invoke().let { trackingRes ->
-                    if (trackingRes.content == views.tracking.text.toString()) return@let
-
-                    Toast.makeText(
-                        requireContext(), "Update Tracking Successful!", Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            is Fail -> {
-                Toast.makeText(
-                    requireContext(),
-                    "Has error: " + it.asyncUpdateTracking.error.message,
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                Log.d(
-                    "Test Tracking",
-                    "invalidate: asyncUpdateTracking: " + it.asyncUpdateTracking.toString()
-                )
-            }
-        }
+        checkinState(it)
+        trackingState(it)
 
         when (it.userCurrent) {
             is Success -> {
                 it.userCurrent.invoke().let { user ->
                     currentUser = user
-                    views.tvWelcome.text =
-                        String.format(
-                            getString(R.string.welcome),
-                            user.displayName?.ifEmpty { user.username })
+                    views.tvWelcome.text = String.format(getString(R.string.welcome),
+                        user.displayName?.ifEmpty { user.username })
                 }
             }
 
             is Fail -> {
-                Log.d("Test Tracking", "invalidate: userCurrent: " + it.userCurrent.toString())
+                Log.e("Test Tracking", "invalidate: userCurrent: ${it.userCurrent}")
                 Toast.makeText(
                     requireContext(),
                     "Has error: " + it.userCurrent.error.message,
                     Toast.LENGTH_SHORT
                 ).show()
-            }
-        }
-
-        when (it.trackings) {
-            is Success -> {
-                it.trackings.invoke().let { trackings ->
-                    if (!views.tracking.text.isNullOrEmpty()) return@let
-
-                    if (trackings.isEmpty()) return@let
-
-                    val now = Date.from(Instant.now()).toLocalDate()
-
-                    val recentTracking = trackings.last()
-                    todayTrackingId = recentTracking.id
-                    val dateTracking = recentTracking.date?.toLocalDate()
-
-                    if (dateTracking == now) {
-                        views.btnTracking.text = "Update Tracking"
-                        views.tracking.setText(recentTracking.content)
-                    }
-                }
-            }
-
-            is Fail -> {
-                Log.d("Test Tracking", "invalidate: trackings: " + it.trackings.toString())
-            }
-        }
-
-        when (it.timeSheets) {
-            is Success -> {
-                it.timeSheets.invoke().let { timeSheets ->
-                    if (!views.btnCheckin.isEnabled) return@let
-
-                    if (timeSheets.isNullOrEmpty()) return@let
-
-                    val recentCheckIn = timeSheets.last().dateAttendance?.toLocalDate()
-                    val now = Date.from(Instant.now()).toLocalDate()
-                    if (now == recentCheckIn) {
-                        views.btnCheckin.isEnabled = false
-                        views.btnCheckin.text = getString(R.string.checked)
-                    }
-                }
-            }
-
-            is Fail -> {
-                Log.d("Test Tracking", "invalidate: timeSheets: " + it.timeSheets.toString())
             }
         }
 
@@ -325,6 +213,7 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
                     views.pageNumber.text = "${page.number + 1}/${page.totalPages}"
 
                     adapter.submitList(page.content)
+                    Log.d("Test Tracking", "invalidate: ${page.content.joinToString("\n")}")
                 }
             }
 
@@ -332,6 +221,122 @@ class HomeFragment @Inject constructor() : TrackingBaseFragment<FragmentHomeBind
                 Log.e("Test Tracking", "invalidate: " + it.asyncPage.toString())
                 Toast.makeText(requireContext(), "Can't load list users!!!", Toast.LENGTH_SHORT)
                     .show()
+            }
+        }
+    }
+
+    private fun trackingState(state: HomeViewState) {
+        when (state.trackings) {
+            is Success -> {
+                state.trackings.invoke().let { trackings ->
+                    if (trackings.isEmpty()) return@let
+
+                    val now = Date.from(Instant.now()).toLocalDate()
+
+                    val recentTracking = trackings.last()
+                    todayTrackingId = recentTracking.id
+                    val dateTracking = recentTracking.date?.toLocalDate()
+
+                    if (dateTracking == now) {
+                        views.btnTracking.text = "Update Tracking"
+                        if (views.tracking.text.toString().isEmpty()) {
+                            views.tracking.setText(recentTracking.content)
+                        }
+                    }
+                }
+            }
+
+            is Fail -> {
+                Log.e("Test Tracking", "invalidate: trackings: ${state.trackings}")
+            }
+        }
+
+        when (state.asyncUpdateTracking) {
+            is Success -> {
+                Toast.makeText(
+                    requireContext(), "Update Tracking Successful!", Toast.LENGTH_SHORT
+                ).show()
+                viewModel.handle(HomeViewAction.GetAllTrackingByUser)
+            }
+
+            is Fail -> {
+                Toast.makeText(
+                    requireContext(),
+                    "Has error: " + state.asyncUpdateTracking.error.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                Log.e(
+                    "Test Tracking", "invalidate: asyncUpdateTracking: ${state.asyncUpdateTracking}"
+                )
+            }
+        }
+
+        when (state.asyncSaveTracking) {
+            is Success -> {
+                state.asyncSaveTracking.invoke().let { tracking ->
+                    views.btnTracking.text = "Update Tracking"
+                    todayTrackingId = tracking.id
+                    Toast.makeText(
+                        requireContext(), "Save Tracking Successful!", Toast.LENGTH_SHORT
+                    ).show()
+                    viewModel.handle(HomeViewAction.GetAllTrackingByUser)
+                }
+            }
+
+            is Fail -> {
+                Log.e(
+                    "Test Tracking", "invalidate: asyncSaveTracking: ${state.asyncSaveTracking}"
+                )
+                Toast.makeText(
+                    requireContext(),
+                    "Has error: " + state.asyncSaveTracking.error.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun checkinState(state: HomeViewState) {
+        when (state.asyncCheckIn) {
+            is Success -> {
+                state.asyncCheckIn.invoke().let { timeSheet ->
+                    Toast.makeText(requireContext(), timeSheet.message, Toast.LENGTH_SHORT).show()
+                    viewModel.handle(HomeViewAction.GetTimeSheetsByUser)
+                }
+            }
+
+            is Fail -> {
+                Toast.makeText(
+                    requireContext(),
+                    "Has error: " + state.asyncCheckIn.error.message,
+                    Toast.LENGTH_SHORT
+                ).show()
+                Log.e("Test Tracking", "invalidate: asyncCheckIn: ${state.asyncCheckIn}")
+            }
+        }
+
+        when (state.timeSheets) {
+            is Success -> {
+                state.timeSheets.invoke().let { timeSheets ->
+                    if (timeSheets.isNullOrEmpty()) return@let
+
+                    val recentCheckIn = timeSheets.last().dateAttendance?.toLocalDate()
+                    val now = Date.from(Instant.now()).toLocalDate()
+                    if (now == recentCheckIn) {
+                        views.btnCheckin.isEnabled = false
+                        views.btnCheckin.text = getString(R.string.checked)
+                    }
+                }
+            }
+
+            is Fail -> {
+                Log.e("Test Tracking", "invalidate: timeSheets: ${state.timeSheets}")
+                Toast.makeText(
+                    requireContext(),
+                    "Has error: " + state.timeSheets.error.message,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

@@ -9,8 +9,10 @@ import com.oceantech.tracking.data.model.LikesDtoRes
 import com.oceantech.tracking.data.model.Page
 import com.oceantech.tracking.data.model.PostsDto
 import com.oceantech.tracking.data.model.PostsDtoReq
+import com.oceantech.tracking.data.model.Resource
 import com.oceantech.tracking.data.model.SearchDto
 import io.reactivex.Observable
+import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -28,4 +30,7 @@ interface PostsApi {
 
     @POST("posts/create")
     fun create(@Body postReq: PostsDtoReq): Observable<AndroidResponseDto>
+
+//    @GET("public/images/{name}")
+//    fun getImageFile(@Path("name") filename: String): Call<Resource>
 }
