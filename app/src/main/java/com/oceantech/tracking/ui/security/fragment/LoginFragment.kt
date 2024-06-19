@@ -14,6 +14,7 @@ import com.airbnb.mvrx.activityViewModel
 import com.airbnb.mvrx.withState
 import com.oceantech.tracking.R
 import com.oceantech.tracking.core.TrackingBaseFragment
+import com.oceantech.tracking.data.model.TokenResponse
 import com.oceantech.tracking.data.network.SessionManager
 import com.oceantech.tracking.databinding.FragmentLoginBinding
 import com.oceantech.tracking.ui.MainActivity
@@ -98,7 +99,9 @@ class LoginFragment @Inject constructor() : TrackingBaseFragment<FragmentLoginBi
 
             is Fail -> {
                 Log.d("Test tracking", "invalidate: " + it.asyncLogin.toString())
-                views.password.error = getString(R.string.login_fail)
+//                val error = (it.asyncLogin as Fail<TokenResponse>).error
+
+                views.passwordTil.error = getString(R.string.login_fail)
             }
         }
     }

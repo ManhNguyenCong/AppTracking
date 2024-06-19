@@ -119,7 +119,7 @@ class RemoteDataSource() {
         @RequiresApi(Build.VERSION_CODES.O)
         override fun write(out: JsonWriter?, value: Date?) {
             if (value == null) {
-                out?.nullValue()
+                out?.value("")
             } else {
                 out?.value(value.format("yyyy-MM-dd"))
             }

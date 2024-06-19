@@ -5,13 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.security.SplashActivity">
+
     <ImageView
-        android:layout_width="160dp"
-        android:layout_height="140dp"
-        android:background="@drawable/img_splash"
+        android:layout_width="240dp"
+        android:layout_height="240dp"
+        android:background="@mipmap/ic_tracking_app"
+        android:importantForAccessibility="no"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -57,9 +57,7 @@ class SecurityViewModel @AssistedInject constructor(
         }
     }
 
-    private fun handleSignIn(
-        userReq: UserDtoReq
-    ) {
+    private fun handleSignIn(userReq: UserDtoReq) {
         setState { copy(asyncSignIn = Loading()) }
         repository.signIn(userReq).execute { copy(asyncSignIn = it) }
     }

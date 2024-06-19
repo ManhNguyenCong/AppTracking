@@ -1,6 +1,7 @@
 package com.oceantech.tracking.ui.security
 
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
@@ -32,6 +33,12 @@ class LoginActivity : TrackingBaseActivity<ActivityLoginBinding>(), SecurityView
         supportFragmentManager.commit {
             add<LoginFragment>(R.id.frame_layout)
         }
+        viewModel.subscribe(this) {
+            if (it.isLoading()) {
+                views.progressBar.visibility = View.VISIBLE
+            } else
+                views.progressBar.visibility = View.GONE
+        }
         viewModel.observeViewEvents {
             if (it != null) {
                 handleEvent(it)
@@ -40,7 +47,6 @@ class LoginActivity : TrackingBaseActivity<ActivityLoginBinding>(), SecurityView
         print(viewModel.getString())
 
         val session = SessionManager(this)
-
         if (!session.fetchAuthToken().isNullOrEmpty()) {
             AlertDialog.Builder(this)
                 .setTitle(getString(R.string.login_session_expired))

@@ -13,5 +13,5 @@ data class SecurityViewState (
     var asyncSignIn: Async<UserDtoRes> = Uninitialized,
     var userCurrent: Async<UserDto> = Uninitialized
     ):MvRxState{
-        fun isLoading()= asyncLogin is Loading
+        fun isLoading()= asyncLogin is Loading || asyncSignIn is Loading || userCurrent is Loading
     }

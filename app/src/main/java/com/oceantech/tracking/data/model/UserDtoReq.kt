@@ -5,7 +5,7 @@ import java.util.Date
 
 data class UserDtoReq(
     @SerializedName("id")
-    val id: Int? = 0,
+    val id: Int? = null,
     @SerializedName("firstName")
     val firstName: String? = null,
     @SerializedName("lastName")
@@ -41,7 +41,7 @@ data class UserDtoReq(
     @SerializedName("countDayTracking")
     val countDayTracking: Int? = null,
     @SerializedName("roles")
-    val roles: List<RoleDtoReq>? = null,
+    val roles: List<RoleDtoReq>? = listOf(),
     @SerializedName("active")
     val active: Boolean? = true,
     @SerializedName("tokenDevice")

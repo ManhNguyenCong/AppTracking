@@ -30,6 +30,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.airbnb.mvrx.viewModel
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.FirebaseException
 import com.oceantech.tracking.R
 import com.oceantech.tracking.TrackingApplication
 import com.oceantech.tracking.core.TrackingBaseActivity
@@ -88,6 +89,8 @@ class MainActivity : TrackingBaseActivity<ActivityMainBinding>(), HomeViewModel.
                 isNavigateUp = true
             }
         }
+
+
     }
 
     override fun create(initialState: HomeViewState): HomeViewModel {

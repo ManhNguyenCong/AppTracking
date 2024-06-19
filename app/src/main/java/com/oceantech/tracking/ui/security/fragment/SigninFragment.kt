@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.navigation.fragment.findNavController
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.activityViewModel
@@ -44,6 +45,7 @@ class SigninFragment @Inject constructor() : TrackingBaseFragment<FragmentSignin
             submitSignIn()
         }
 
+        views.btnDOB.isEnabled = false
         views.btnDOB.setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 val datePicker = DatePickerDialog(requireContext())
@@ -74,23 +76,21 @@ class SigninFragment @Inject constructor() : TrackingBaseFragment<FragmentSignin
         val gender = if (views.rgGender.checkedRadioButtonId == R.id.rBtnMale) "M" else "F"
 
         if (validateSignIn(username, password, passwordConfirm, email)) {
-            viewModel.handle(
-                SecurityViewAction.SignInAction(
-                    UserDtoReq(
-                        username = username,
-                        displayName = firstName.ifEmpty { username },
-                        gender = gender,
-                        dob = dob,
-                        email = email,
-                        password = password,
-                        confirmPassword = passwordConfirm,
-                        firstName = firstName,
-                        lastName = lastName,
-                        university = views.university.text.toString().trim(),
-                        year = views.year.text.toString().trim().toIntOrNull()
-                    )
-                )
+            val userReq = UserDtoReq(
+                username = username,
+                displayName = firstName.ifEmpty { username },
+                gender = gender,
+                dob = dob,
+                email = email,
+                password = password,
+                confirmPassword = passwordConfirm,
+                firstName = firstName,
+                lastName = lastName,
+                university = views.university.text.toString().trim(),
+                year = views.year.text.toString().trim().toIntOrNull()
             )
+            Log.d("Test Tracking", "submitSignIn: $userReq")
+            viewModel.handle(SecurityViewAction.SignInAction(userReq))
         }
     }
 
@@ -107,14 +107,15 @@ class SigninFragment @Inject constructor() : TrackingBaseFragment<FragmentSignin
         if (email.isNullOrEmpty()) {
             views.email.error = getString(R.string.username_not_empty)
         }
-        if (dob == null) {
-            Toast.makeText(requireContext(), getString(R.string.enter_birthday), Toast.LENGTH_SHORT)
-                .show()
-        }
+//        if (dob == null) {
+//            Toast.makeText(requireContext(), getString(R.string.enter_birthday), Toast.LENGTH_SHORT)
+//                .show()
+//        }
 
         return !username.isNullOrEmpty() && !password.isNullOrEmpty()
                 && !passwordConfirm.isNullOrEmpty() && passwordConfirm == password
-                && !email.isNullOrEmpty() && dob != null
+                && !email.isNullOrEmpty()
+//                && dob != null
     }
 
     override fun invalidate(): Unit = withState(viewModel) {
@@ -122,6 +123,7 @@ class SigninFragment @Inject constructor() : TrackingBaseFragment<FragmentSignin
         when (it.asyncSignIn) {
             is Success -> {
                 Toast.makeText(requireContext(), "Sign in successful!!!", Toast.LENGTH_SHORT).show()
+                findNavController().navigateUp()
             }
             is Fail -> {
                 val error = (it.asyncSignIn as Fail<UserDtoRes>).error.message
